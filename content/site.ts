@@ -16,9 +16,9 @@ export const siteConfig = {
     inkColor: "#2d2731",
   },
   mentor: {
-    name: "[NOME DO MENTOR]",
-    photo: "[FOTO DO MENTOR]",
-    linkedIn: "[URL DO LINKEDIN]",
+    name: "Breno Oliveira",
+    photo: "/breno-oliveira.jpeg",
+    linkedIn: "https://www.linkedin.com/in/brenooliveira/",
     legalTrajectory:
       "Aprendizados de quem construiu uma empresa de tecnologia e participou de um processo de negociação com o Grupo Primo.",
     relevantExperience: "[EXPERIÊNCIAS RELEVANTES]",

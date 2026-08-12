@@ -25,6 +25,9 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.match(html, /<title>Mentoria de Tecnologia e Negócios \| Coders Zoom<\/title>/i);
   assert.match(html, /Transforme sua capacidade técnica em um/);
   assert.match(html, /Mentoria Tech que Vira Negócio/);
+  assert.match(html, /Breno Oliveira/);
+  assert.match(html, /\/breno-oliveira\.jpeg/);
+  assert.match(html, /https:\/\/www\.linkedin\.com\/in\/brenooliveira\//);
   assert.match(html, /id="candidatura"/);
   assert.match(html, /name="consent"/);
   assert.match(html, /application\/ld\+json/);

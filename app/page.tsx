@@ -43,6 +43,8 @@ const deliverables = [
 ];
 
 export default function Home() {
+  const mentorHasPhoto = !siteConfig.mentor.photo.startsWith("[");
+  const mentorHasLinkedIn = !siteConfig.mentor.linkedIn.startsWith("[");
   const investmentCopy =
     siteConfig.investment.mode === "initial-price"
       ? `Investimento do ciclo inicial: ${siteConfig.investment.initialPrice}`
@@ -100,10 +102,16 @@ export default function Home() {
             </div>
 
             <div className="hero-visual" aria-label="Espaço reservado para a foto real do mentor">
-              <div className="mentor-photo-placeholder">
-                <div className="photo-orbit orbit-one" aria-hidden="true"></div>
-                <div className="photo-orbit orbit-two" aria-hidden="true"></div>
-                <span className="photo-placeholder-label">[FOTO DO MENTOR]</span>
+              <div className={`mentor-photo-placeholder ${mentorHasPhoto ? "has-photo" : ""}`}>
+                {mentorHasPhoto ? (
+                  <img className="mentor-photo" src={siteConfig.mentor.photo} alt={`${siteConfig.mentor.name}, mentor da Coders Zoom`} width="512" height="512" fetchPriority="high" decoding="async" />
+                ) : (
+                  <>
+                    <div className="photo-orbit orbit-one" aria-hidden="true"></div>
+                    <div className="photo-orbit orbit-two" aria-hidden="true"></div>
+                    <span className="photo-placeholder-label">[FOTO DO MENTOR]</span>
+                  </>
+                )}
                 <div className="photo-caption">
                   <span>Mentoria 1:1</span>
                   <strong>{siteConfig.mentor.name}</strong>
@@ -220,8 +228,12 @@ export default function Home() {
 
         <section className="mentor section" id="sobre">
           <div className="container mentor-grid">
-            <div className="mentor-image-panel">
-              <span>[FOTO REAL DO MENTOR]</span>
+            <div className={`mentor-image-panel ${mentorHasPhoto ? "has-photo" : ""}`}>
+              {mentorHasPhoto ? (
+                <img className="mentor-photo" src={siteConfig.mentor.photo} alt={`${siteConfig.mentor.name}, mentor da Coders Zoom`} width="512" height="512" loading="lazy" decoding="async" />
+              ) : (
+                <span>[FOTO REAL DO MENTOR]</span>
+              )}
               <div className="mentor-image-meta"><small>Mentor</small><strong>{siteConfig.mentor.name}</strong></div>
             </div>
             <div className="mentor-copy">
@@ -235,7 +247,11 @@ export default function Home() {
                 <span>{siteConfig.mentor.authorizedProjects}</span>
                 <span>{siteConfig.mentor.mediaAppearances}</span>
               </div>
-              <span className="disabled-link" aria-disabled="true">LinkedIn será adicionado após confirmação ↗</span>
+              {mentorHasLinkedIn ? (
+                <a className="mentor-link" href={siteConfig.mentor.linkedIn} target="_blank" rel="noreferrer">Conectar com Breno no LinkedIn ↗</a>
+              ) : (
+                <span className="disabled-link" aria-disabled="true">LinkedIn será adicionado após confirmação ↗</span>
+              )}
             </div>
           </div>
         </section>
