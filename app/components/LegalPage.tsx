@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { companyConfig, siteConfig } from "../../content/site";
 
 export function LegalPage({
@@ -19,10 +18,13 @@ export function LegalPage({
     <>
       <header className="legal-header">
         <div className="container legal-header-inner">
-          <Link href="/" aria-label="Coders Zoom — voltar à página inicial">
+          {/* A navegação completa evita falhas do roteador cliente ao sair das páginas legais. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/#inicio" aria-label="Coders Zoom — voltar à página inicial">
             <img src={siteConfig.brand.logo} width="181" height="36" alt="Coders Zoom" fetchPriority="high" decoding="async" />
-          </Link>
-          <Link className="legal-back" href="/">← Voltar para a mentoria</Link>
+          </a>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a className="legal-back" href="/#inicio">← Voltar para a mentoria</a>
         </div>
       </header>
       <main className="legal-page">

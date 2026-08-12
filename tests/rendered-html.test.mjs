@@ -62,4 +62,5 @@ test("publica os termos com as condições informadas da mentoria", async () => 
   assert.match(html, /prazo legal de 7 dias/);
   assert.match(html, /pessoal e intransferível/);
   assert.match(html, /não serão gravados/);
+  assert.match(html, /href="\/#inicio"[^>]*>← Voltar para a mentoria<\/a>/);
 });
