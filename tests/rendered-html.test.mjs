@@ -28,6 +28,10 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.match(html, /Breno Oliveira/);
   assert.match(html, /\/breno-oliveira\.jpeg/);
   assert.match(html, /https:\/\/www\.linkedin\.com\/in\/brenooliveira\//);
+  assert.match(html, /\+20 anos em engenharia de software e produtos digitais/);
+  assert.match(html, /Cofundador e CTO da Ductor e da Grão/);
+  assert.match(html, /Ex-Head de Tecnologia do Grupo Primo/);
+  assert.doesNotMatch(html, /\[EXPERIÊNCIAS RELEVANTES\]|\[EMPRESAS OU PROJETOS AUTORIZADOS\]|\[EVENTOS, ENTREVISTAS OU PODCASTS\]/);
   assert.match(html, /id="candidatura"/);
   assert.match(html, /name="consent"/);
   assert.match(html, /id="whatsapp"[^>]*inputMode="numeric"/i);

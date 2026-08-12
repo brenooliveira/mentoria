@@ -239,10 +239,11 @@ export default function Home() {
             <div className="mentor-copy">
               <p className="eyebrow">Sobre o mentor</p>
               <h2>Experiência prática, compartilhada sem fórmulas prontas.</h2>
-              <p>Sou profissional de tecnologia e empreendedor. Ao longo da minha trajetória, vivi o processo completo de transformar conhecimento técnico em produto, operação e empresa. Também participei da construção e da negociação de uma empresa com o Grupo Primo.</p>
+              <p>Sou líder de tecnologia e empreendedor com mais de 20 anos de experiência em engenharia de software, arquitetura e construção de produtos digitais. Minha trajetória combina liderança de pessoas, visão de negócio e proximidade técnica para transformar problemas complexos em soluções escaláveis.</p>
+              <p>Como cofundador e CTO da Ductor e da Grão, ex-Head de Tecnologia do Grupo Primo e ex-Head of Engineering no Moip, estruturei times, desenvolvi lideranças e participei da evolução de produtos nos mercados de pagamentos, investimentos e serviços financeiros.</p>
               <p>Nesta mentoria, compartilho os aprendizados práticos dessa jornada para ajudar outros profissionais técnicos a tomar decisões melhores, evitar erros comuns e construir negócios mais consistentes.</p>
               <blockquote>“{siteConfig.mentor.legalTrajectory}”</blockquote>
-              <div className="mentor-placeholders" aria-label="Dados do mentor a confirmar">
+              <div className="mentor-placeholders" aria-label="Experiência do mentor">
                 <span>{siteConfig.mentor.relevantExperience}</span>
                 <span>{siteConfig.mentor.authorizedProjects}</span>
                 <span>{siteConfig.mentor.mediaAppearances}</span>

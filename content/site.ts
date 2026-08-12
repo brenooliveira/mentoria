@@ -20,10 +20,10 @@ export const siteConfig = {
     photo: "/breno-oliveira.jpeg",
     linkedIn: "https://www.linkedin.com/in/brenooliveira/",
     legalTrajectory:
-      "Aprendizados de quem construiu uma empresa de tecnologia e participou de um processo de negociação com o Grupo Primo.",
-    relevantExperience: "[EXPERIÊNCIAS RELEVANTES]",
-    authorizedProjects: "[EMPRESAS OU PROJETOS AUTORIZADOS]",
-    mediaAppearances: "[EVENTOS, ENTREVISTAS OU PODCASTS]",
+      "Experiência de quem liderou tecnologia, construiu produtos digitais e transformou desafios técnicos em negócios escaláveis.",
+    relevantExperience: "+20 anos em engenharia de software e produtos digitais",
+    authorizedProjects: "Cofundador e CTO da Ductor e da Grão",
+    mediaAppearances: "Ex-Head de Tecnologia do Grupo Primo e Ex-Head of Engineering no Moip",
   },
   investment: {
     mode: "after-application" as "after-application" | "initial-price",
