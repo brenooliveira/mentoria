@@ -6,6 +6,8 @@ import {
   ApplicationSubmission,
   createApplicationGateway,
 } from "../../lib/application";
+import { findInvestmentOption, getInvestmentOptions } from "../../lib/investment";
+import { trackEvent } from "../../lib/tracking";
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 type Step = 1 | 2;
@@ -37,7 +39,12 @@ export function ApplicationForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
+  const formStarted = useRef(false);
   const gateway = useMemo(() => createApplicationGateway(siteConfig.form), []);
+  const investmentOptions = useMemo(
+    () => getInvestmentOptions(siteConfig.investment),
+    [],
+  );
 
   useEffect(() => {
     startedAt.current = Date.now();
@@ -62,6 +69,10 @@ export function ApplicationForm() {
       showValidationErrors(nextErrors, 1);
       return;
     }
+    trackEvent("application_step_one_complete", {
+      step: "step_1",
+      priceMode: siteConfig.investment.mode,
+    });
     moveToStep(2);
   }
 
@@ -70,6 +81,11 @@ export function ApplicationForm() {
     setFieldErrors((current) => ({ ...current, ...nextErrors }));
     setStatus("error");
     setError("Revise os campos obrigatórios destacados antes de continuar.");
+    trackEvent("application_validation_error", {
+      step: errorStep === 1 ? "step_1" : "step_2",
+      priceMode: siteConfig.investment.mode,
+      errorType: "required_fields",
+    });
     if (step !== errorStep) setStep(errorStep);
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
@@ -91,10 +107,22 @@ export function ApplicationForm() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
+    const investmentOptionId = String(data.get("investmentReadiness") || "");
+
+    trackEvent("application_submission_attempt", {
+      step: "step_2",
+      priceMode: siteConfig.investment.mode,
+      investmentOptionId: investmentOptionId || undefined,
+    });
 
     if (data.get("website") || Date.now() - startedAt.current < 1500) {
       setStatus("error");
       setError("Não foi possível validar o envio. Revise os campos e tente novamente.");
+      trackEvent("application_validation_error", {
+        step: "step_2",
+        priceMode: siteConfig.investment.mode,
+        errorType: "spam_protection",
+      });
       return;
     }
 
@@ -106,6 +134,19 @@ export function ApplicationForm() {
     }
 
     const application = Object.fromEntries(data.entries()) as Record<string, string>;
+    const selectedInvestment = findInvestmentOption(
+      siteConfig.investment,
+      application.investmentReadiness,
+    );
+
+    if (!selectedInvestment) {
+      showValidationErrors(
+        { investmentReadiness: "Selecione sua disponibilidade de investimento." },
+        2,
+      );
+      return;
+    }
+
     const payload: ApplicationSubmission = {
       name: application.name,
       email: application.email,
@@ -116,7 +157,12 @@ export function ApplicationForm() {
       stage: application.stage,
       challenge: application.challenge,
       goal90Days: application.goal90Days,
-      investmentReadiness: application.investmentReadiness,
+      investmentReadiness: selectedInvestment.id,
+      investmentReadinessLabel: selectedInvestment.label,
+      investmentMode: siteConfig.investment.mode,
+      investmentAmountInCents: siteConfig.investment.price.amountInCents,
+      investmentRangeMinInCents: selectedInvestment.minAmountInCents,
+      investmentRangeMaxInCents: selectedInvestment.maxAmountInCents,
       source: application.source || "",
       consent: application.consent === "on",
       website: application.website,
@@ -131,6 +177,11 @@ export function ApplicationForm() {
       form.reset();
       setFieldErrors({});
       setStatus("success");
+      trackEvent("application_submission_success", {
+        step: "step_2",
+        priceMode: siteConfig.investment.mode,
+        investmentOptionId: selectedInvestment.id,
+      });
     } catch (submissionError) {
       setStatus("error");
       setError(
@@ -138,6 +189,12 @@ export function ApplicationForm() {
           ? submissionError.message
           : "Não foi possível enviar agora. Tente novamente em alguns instantes.",
       );
+      trackEvent("application_endpoint_error", {
+        step: "step_2",
+        priceMode: siteConfig.investment.mode,
+        investmentOptionId: selectedInvestment.id,
+        errorType: "endpoint",
+      });
     }
   }
 
@@ -167,7 +224,20 @@ export function ApplicationForm() {
   }
 
   return (
-    <form className="application-form" onSubmit={handleSubmit} noValidate ref={formRef}>
+    <form
+      className="application-form"
+      onSubmit={handleSubmit}
+      onInputCapture={() => {
+        if (formStarted.current) return;
+        formStarted.current = true;
+        trackEvent("application_form_start", {
+          step: step === 1 ? "step_1" : "step_2",
+          priceMode: siteConfig.investment.mode,
+        });
+      }}
+      noValidate
+      ref={formRef}
+    >
       {siteConfig.form.mode === "preview" && (
         <p className="preview-banner" role="note">
           <strong>Formulário em modo de revisão.</strong> Os dados não serão enviados até a integração ser configurada.
@@ -227,7 +297,13 @@ export function ApplicationForm() {
           ]} />
           <TextArea label="Principal desafio atual" name="challenge" error={fieldErrors.challenge} onCorrect={clearFieldError} />
           <TextArea label="O que deseja alcançar nos próximos 90 dias?" name="goal90Days" error={fieldErrors.goal90Days} onCorrect={clearFieldError} />
-          <SelectField label="Disponibilidade para investir na mentoria" name="investmentReadiness" error={fieldErrors.investmentReadiness} onCorrect={clearFieldError} options={[...siteConfig.investment.readinessOptions]} />
+          <SelectField
+            label="Disponibilidade para investir na mentoria"
+            name="investmentReadiness"
+            error={fieldErrors.investmentReadiness}
+            onCorrect={clearFieldError}
+            options={investmentOptions.map((option) => ({ value: option.id, label: option.label }))}
+          />
           <SelectField label="Como conheceu a Coders Zoom?" name="source" optional onCorrect={clearFieldError} options={[
             "Indicação",
             "LinkedIn",
@@ -258,7 +334,18 @@ export function ApplicationForm() {
         {status === "error" && error && step === 2 && <p className="form-error" role="alert">{error}</p>}
 
         <div className="form-actions">
-          <button className="form-back-button" type="button" onClick={() => moveToStep(1)} disabled={status === "submitting"}>← Voltar</button>
+          <button
+            className="form-back-button"
+            type="button"
+            onClick={() => {
+              trackEvent("application_step_back", {
+                step: "step_2",
+                priceMode: siteConfig.investment.mode,
+              });
+              moveToStep(1);
+            }}
+            disabled={status === "submitting"}
+          >← Voltar</button>
           <button className="button button-primary submit-button" type="submit" disabled={status === "submitting"}>
             {status === "submitting" ? "Enviando candidatura..." : "Enviar candidatura"}
             <span aria-hidden="true">↗</span>
@@ -362,7 +449,7 @@ function Field({
 function SelectField({ label, name, options, optional = false, error, onCorrect }: {
   label: string;
   name: FieldName;
-  options: string[];
+  options: Array<string | { value: string; label: string }>;
   optional?: boolean;
   error?: string;
   onCorrect: (name: FieldName) => void;
@@ -381,7 +468,11 @@ function SelectField({ label, name, options, optional = false, error, onCorrect 
         onChange={() => onCorrect(name)}
       >
         <option value="">Selecione uma opção</option>
-        {options.map((option) => <option key={option}>{option}</option>)}
+        {options.map((option) => {
+          const value = typeof option === "string" ? option : option.value;
+          const label = typeof option === "string" ? option : option.label;
+          return <option key={value} value={value}>{label}</option>;
+        })}
       </select>
       {error && <FieldError name={name} message={error} />}
     </label>

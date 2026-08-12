@@ -20,7 +20,7 @@ export function MobileMenu() {
         {links.map(([href, label]) => (
           <a href={href} key={href} onClick={closeMenu}>{label}</a>
         ))}
-        <a className="button button-primary" href="#candidatura" onClick={closeMenu}>Quero me candidatar</a>
+        <a className="button button-primary" href="#candidatura" data-funnel-cta="mobile_menu" onClick={closeMenu}>Quero me candidatar</a>
       </nav>
     </details>
   );

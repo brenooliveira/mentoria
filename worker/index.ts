@@ -32,6 +32,11 @@ type ApplicationPayload = {
   challenge: string;
   goal90Days: string;
   investmentReadiness: string;
+  investmentReadinessLabel: string;
+  investmentMode: "after-application" | "initial-price";
+  investmentAmountInCents: number | null;
+  investmentRangeMinInCents: number | null;
+  investmentRangeMaxInCents: number | null;
   source: string;
   consent: boolean;
   website?: string;
@@ -52,7 +57,12 @@ const fieldLabels: Array<[keyof ApplicationPayload, string]> = [
   ["stage", "Estágio do negócio"],
   ["challenge", "Principal desafio atual"],
   ["goal90Days", "Objetivo para os próximos 90 dias"],
-  ["investmentReadiness", "Disponibilidade para investir"],
+  ["investmentReadiness", "Identificador da disponibilidade para investir"],
+  ["investmentReadinessLabel", "Disponibilidade para investir"],
+  ["investmentMode", "Modo de exibição do preço"],
+  ["investmentAmountInCents", "Preço da mentoria"],
+  ["investmentRangeMinInCents", "Faixa de investimento — mínimo"],
+  ["investmentRangeMaxInCents", "Faixa de investimento — máximo"],
   ["source", "Como conheceu a Coders Zoom"],
 ];
 
@@ -82,6 +92,7 @@ function isValidApplication(value: unknown): value is ApplicationPayload {
     "challenge",
     "goal90Days",
     "investmentReadiness",
+    "investmentReadinessLabel",
   ];
 
   for (const field of requiredFields) {
@@ -110,6 +121,16 @@ function isValidApplication(value: unknown): value is ApplicationPayload {
     }
   }
 
+  if (!/^[a-z0-9_]+$/.test(value.investmentReadiness as string)) return false;
+  if (value.investmentMode !== "after-application" && value.investmentMode !== "initial-price") return false;
+
+  for (const field of ["investmentAmountInCents", "investmentRangeMinInCents", "investmentRangeMaxInCents"] as const) {
+    const amount = value[field];
+    if (amount !== null && (typeof amount !== "number" || !Number.isInteger(amount) || amount < 0)) return false;
+  }
+
+  if (value.investmentMode === "initial-price" && value.investmentAmountInCents === null) return false;
+
   return typeof value.startedAt === "number" && Date.now() - value.startedAt >= 1_500;
 }
 
@@ -121,6 +142,20 @@ function escapeHtml(value: string) {
     "'": "&#39;",
     '"': "&quot;",
   })[character] ?? character);
+}
+
+function formatApplicationField(field: keyof ApplicationPayload, value: ApplicationPayload[keyof ApplicationPayload]) {
+  if (value === null || value === "") return "Não informado";
+
+  if (["investmentAmountInCents", "investmentRangeMinInCents", "investmentRangeMaxInCents"].includes(field)) {
+    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value) / 100);
+  }
+
+  if (field === "investmentMode") {
+    return value === "initial-price" ? "Preço público" : "Preço não publicado";
+  }
+
+  return String(value);
 }
 
 async function handleApplication(request: Request, env: Env): Promise<Response> {
@@ -164,11 +199,11 @@ async function handleApplication(request: Request, env: Env): Promise<Response> 
   }
 
   const rows = fieldLabels.map(([field, label]) => {
-    const value = String(application[field] || "Não informado");
+    const value = formatApplicationField(field, application[field]);
     return `<tr><th align="left" style="padding:8px 12px;border-bottom:1px solid #e7e7e7;vertical-align:top">${escapeHtml(label)}</th><td style="padding:8px 12px;border-bottom:1px solid #e7e7e7;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`;
   }).join("");
   const text = fieldLabels
-    .map(([field, label]) => `${label}: ${String(application[field] || "Não informado")}`)
+    .map(([field, label]) => `${label}: ${formatApplicationField(field, application[field])}`)
     .join("\n\n");
 
   const resendResponse = await fetch("https://api.resend.com/emails", {

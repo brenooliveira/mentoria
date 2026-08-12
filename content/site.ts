@@ -7,6 +7,15 @@ export type Testimonial = {
   displayAuthorized: boolean;
 };
 
+export type InvestmentMode = "after-application" | "initial-price";
+
+export type InvestmentOption = {
+  id: string;
+  label: string;
+  minAmountInCents: number | null;
+  maxAmountInCents: number | null;
+};
+
 export const siteConfig = {
   brand: {
     name: "Coders Zoom",
@@ -19,25 +28,46 @@ export const siteConfig = {
     name: "Breno Oliveira",
     photo: "/breno-oliveira.jpeg",
     linkedIn: "https://www.linkedin.com/in/brenooliveira/",
-    acquisitionConfirmed: false,
+    heroCredentialMode: "safe" as "safe" | "authorized-integration",
     legalTrajectory:
-      "Cofundador da Grão e ex-Head de Tecnologia do Grupo Primo.",
-    heroCredential: "Cofundador da Grão",
-    heroCredentialDetail: "Ex-Head de Tecnologia do Grupo Primo.",
+      "Cofundador e CTO da Grão e ex-Head de Tecnologia do Grupo Primo.",
+    heroCredentialVariants: {
+      safe: {
+        title: "Cofundador e CTO da Grão",
+        detail: "Ex-Head de Tecnologia do Grupo Primo.",
+      },
+      "authorized-integration": {
+        title: "Cofundador e CTO da Grão",
+        detail: "Da construção da Grão à integração com o Grupo Primo.",
+      },
+    },
     relevantExperience: "+20 anos em engenharia de software e produtos digitais",
     authorizedProjects: "Cofundador e CTO da Ductor e da Grão",
     mediaAppearances: "Ex-Head de Tecnologia do Grupo Primo e Ex-Head of Engineering no Moip",
   },
   investment: {
-    mode: "after-application" as "after-application" | "initial-price",
-    initialPrice: "[PREÇO]",
-    installmentDetails: "[CONDIÇÕES DE PARCELAMENTO]",
+    mode: "after-application" as InvestmentMode,
+    price: {
+      amountInCents: null as number | null,
+      formatted: null as string | null,
+    },
+    installmentDetails:
+      "Condições de parcelamento apresentadas durante a conversa de alinhamento.",
     availableSpots: "[NÚMERO DE VAGAS]",
-    readinessOptions: [
-      "Posso investir agora, se houver alinhamento",
-      "Preciso entender valores e condições",
-      "Estou me planejando para investir",
-    ],
+    readinessOptions: {
+      "initial-price": [
+        { id: "public_full_amount", label: "Tenho disponibilidade para investir {price}.", minAmountInCents: null, maxAmountInCents: null },
+        { id: "public_needs_installments", label: "Tenho disponibilidade, mas preciso de parcelamento.", minAmountInCents: null, maxAmountInCents: null },
+        { id: "public_needs_conversation", label: "Preciso conversar antes de decidir.", minAmountInCents: null, maxAmountInCents: null },
+        { id: "public_not_available", label: "Ainda não tenho disponibilidade para esse investimento.", minAmountInCents: null, maxAmountInCents: null },
+      ] satisfies InvestmentOption[],
+      "after-application": [
+        { id: "private_up_to_2500", label: "Até R$ 2.500.", minAmountInCents: 0, maxAmountInCents: 250_000 },
+        { id: "private_2500_to_5000", label: "De R$ 2.500 a R$ 5.000.", minAmountInCents: 250_000, maxAmountInCents: 500_000 },
+        { id: "private_above_5000", label: "Acima de R$ 5.000.", minAmountInCents: 500_000, maxAmountInCents: null },
+        { id: "private_planning", label: "Ainda estou me planejando para investir.", minAmountInCents: null, maxAmountInCents: null },
+      ] satisfies InvestmentOption[],
+    },
   },
   contact: {
     whatsapp: "[WHATSAPP]",

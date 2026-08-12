@@ -30,6 +30,7 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.match(html, /https:\/\/www\.linkedin\.com\/in\/brenooliveira\//);
   assert.match(html, /\+20 anos em engenharia de software e produtos digitais/);
   assert.match(html, /Cofundador e CTO da Ductor e da Grão/);
+  assert.match(html, /Cofundador e CTO da Grão/);
   assert.match(html, /Ex-Head de Tecnologia do Grupo Primo/);
   assert.doesNotMatch(html, /\[EXPERIÊNCIAS RELEVANTES\]|\[EMPRESAS OU PROJETOS AUTORIZADOS\]|\[EVENTOS, ENTREVISTAS OU PODCASTS\]/);
   assert.match(html, /id="candidatura"/);
@@ -39,6 +40,8 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.match(html, /LinkedIn<small>Opcional<\/small>/);
   assert.match(html, /id="whatsapp"[^>]*inputMode="numeric"/i);
   assert.match(html, /id="whatsapp"[^>]*maxLength="15"/i);
+  assert.match(html, /value="private_up_to_2500"[^>]*>Até R\$ 2\.500\.<\/option>/i);
+  assert.match(html, /data-funnel-cta="hero"/i);
   assert.match(html, /application\/ld\+json/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
@@ -95,7 +98,12 @@ test("encaminha uma candidatura válida ao provedor de e-mail", async () => {
           stage: "Já existe um produto inicial",
           challenge: "Validar a oferta com os primeiros clientes.",
           goal90Days: "Conquistar clientes e organizar o processo comercial.",
-          investmentReadiness: "Preciso entender valores e condições",
+          investmentReadiness: "private_2500_to_5000",
+          investmentReadinessLabel: "De R$ 2.500 a R$ 5.000.",
+          investmentMode: "after-application",
+          investmentAmountInCents: null,
+          investmentRangeMinInCents: 250000,
+          investmentRangeMaxInCents: 500000,
           source: "LinkedIn",
           consent: true,
           website: "",
@@ -115,6 +123,9 @@ test("encaminha uma candidatura válida ao provedor de e-mail", async () => {
     assert.deepEqual(emailPayload.to, ["breno26@gmail.com"]);
     assert.equal(emailPayload.reply_to, "pessoa@example.com");
     assert.match(emailPayload.subject, /Pessoa Candidata/);
+    assert.match(emailPayload.text, /Identificador da disponibilidade para investir: private_2500_to_5000/);
+    assert.match(emailPayload.text, /Disponibilidade para investir: De R\$ 2\.500 a R\$ 5\.000\./);
+    assert.match(emailPayload.text, /Faixa de investimento — mínimo: R\$\s*2\.500,00/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -147,7 +158,12 @@ test("aceita os campos opcionais vazios no endpoint", async () => {
           stage: "Ainda é uma ideia",
           challenge: "Preciso validar uma proposta com clientes reais.",
           goal90Days: "Quero definir um processo comercial inicial viável.",
-          investmentReadiness: "Preciso entender valores e condições",
+          investmentReadiness: "private_planning",
+          investmentReadinessLabel: "Ainda estou me planejando para investir.",
+          investmentMode: "after-application",
+          investmentAmountInCents: null,
+          investmentRangeMinInCents: null,
+          investmentRangeMaxInCents: null,
           source: "",
           consent: true,
           website: "",

@@ -9,6 +9,11 @@ export type ApplicationSubmission = {
   challenge: string;
   goal90Days: string;
   investmentReadiness: string;
+  investmentReadinessLabel: string;
+  investmentMode: "after-application" | "initial-price";
+  investmentAmountInCents: number | null;
+  investmentRangeMinInCents: number | null;
+  investmentRangeMaxInCents: number | null;
   source: string;
   consent: boolean;
   website: string;

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ApplicationForm } from "./components/ApplicationForm";
+import { FunnelTracking } from "./components/FunnelTracking";
+import { getInvestmentPresentation } from "../lib/investment";
 import { MobileMenu } from "./components/MobileMenu";
 import {
   audienceCards,
@@ -33,6 +35,9 @@ export default function Home() {
   const mentorHasPhoto = !siteConfig.mentor.photo.startsWith("[");
   const mentorHasLinkedIn = !siteConfig.mentor.linkedIn.startsWith("[");
   const hasAvailableSpots = !siteConfig.investment.availableSpots.startsWith("[");
+  const heroCredential =
+    siteConfig.mentor.heroCredentialVariants[siteConfig.mentor.heroCredentialMode];
+  const investmentPresentation = getInvestmentPresentation(siteConfig.investment);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -63,7 +68,7 @@ export default function Home() {
             <a href="#sobre">Sobre</a>
             <a href="#perguntas">Perguntas frequentes</a>
           </nav>
-          <a className="button button-header" href="#candidatura">Quero me candidatar <span aria-hidden="true">↗</span></a>
+          <a className="button button-header" href="#candidatura" data-funnel-cta="header">Quero me candidatar <span aria-hidden="true">↗</span></a>
           <MobileMenu />
         </div>
       </header>
@@ -79,7 +84,7 @@ export default function Home() {
                 Mentoria individual para profissionais e fundadores de tecnologia que querem criar uma oferta clara, validar seu produto e conquistar clientes.
               </p>
               <div className="hero-actions">
-                <a className="button button-primary" href="#candidatura">Quero me candidatar <span aria-hidden="true">↗</span></a>
+                <a className="button button-primary" href="#candidatura" data-funnel-cta="hero">Quero me candidatar <span aria-hidden="true">↗</span></a>
                 <a className="text-link" href="#como-funciona">Conhecer a mentoria <span aria-hidden="true">↓</span></a>
               </div>
               <p className="availability"><span aria-hidden="true"></span> Acompanhamento individual <b>•</b> Poucas vagas por ciclo</p>
@@ -104,8 +109,8 @@ export default function Home() {
               <div className="credibility-card">
                 <span className="signal-dot" aria-hidden="true"></span>
                 <div>
-                  <strong>{siteConfig.mentor.heroCredential}</strong>
-                  <p>{siteConfig.mentor.heroCredentialDetail}</p>
+                  <strong>{heroCredential.title}</strong>
+                  <p>{heroCredential.detail}</p>
                 </div>
               </div>
             </div>
@@ -276,18 +281,9 @@ export default function Home() {
               <h2>Vamos entender se este é o momento certo para o seu negócio.</h2>
               <p>Conte onde você está e o que precisa destravar. A candidatura é analisada antes de qualquer conversa sobre pagamento.</p>
               <div className="investment-card">
-                <small>{siteConfig.investment.mode === "initial-price" ? "Investimento do ciclo fundador" : "Investimento"}</small>
-                {siteConfig.investment.mode === "initial-price" ? (
-                  <>
-                    <strong>{siteConfig.investment.initialPrice}</strong>
-                    <span>{siteConfig.investment.installmentDetails}</span>
-                  </>
-                ) : (
-                  <>
-                    <strong>Os valores e as condições são apresentados após a análise da candidatura.</strong>
-                    <span>A candidatura não gera cobrança nem compromisso de contratação.</span>
-                  </>
-                )}
+                <small>{investmentPresentation.heading}</small>
+                <strong>{investmentPresentation.primary}</strong>
+                <span>{investmentPresentation.secondary}</span>
               </div>
               <p className="limited-note"><span aria-hidden="true">◆</span> As vagas são limitadas porque todos os encontros são conduzidos individualmente.</p>
             </div>
@@ -318,7 +314,7 @@ export default function Home() {
             <div className="final-cta-signal" aria-hidden="true"><span></span><span></span><span></span></div>
             <p className="eyebrow">Seu próximo ciclo começa com uma decisão</p>
             <h2>Você já sabe construir tecnologia. <em>Agora é hora de construir o negócio.</em></h2>
-            <a className="button button-primary" href="#candidatura">Quero me candidatar <span aria-hidden="true">↗</span></a>
+            <a className="button button-primary" href="#candidatura" data-funnel-cta="final">Quero me candidatar <span aria-hidden="true">↗</span></a>
           </div>
         </section>
 
@@ -339,7 +335,8 @@ export default function Home() {
         <div className="container footer-bottom"><span>© {new Date().getFullYear()} Coders Zoom.</span><span>Mentoria de tecnologia e negócios.</span></div>
       </footer>
 
-      <a className="mobile-apply-bar" href="#candidatura">Quero me candidatar <span aria-hidden="true">↗</span></a>
+      <a className="mobile-apply-bar" href="#candidatura" data-funnel-cta="mobile_fixed">Quero me candidatar <span aria-hidden="true">↗</span></a>
+      <FunnelTracking />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </>
   );
