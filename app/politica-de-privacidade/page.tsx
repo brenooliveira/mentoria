@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
 
       <section id="formulario">
         <h2>4. Formulário de candidatura</h2>
-        <p>No atual modo de revisão do site, o envio do formulário é apenas simulado e as informações preenchidas não são transmitidas nem armazenadas. Quando a integração for ativada, os dados serão tratados de acordo com esta Política, exclusivamente para análise da candidatura e contatos relacionados.</p>
+        <p>As informações preenchidas no formulário são transmitidas de forma segura para análise da candidatura e encaminhadas ao e-mail de atendimento da Coders Zoom. Nesta etapa, o site não mantém uma cópia das respostas em banco de dados próprio.</p>
         <p>O preenchimento é voluntário, mas a ausência de informações obrigatórias pode impedir a avaliação da candidatura.</p>
       </section>
 
@@ -59,7 +59,9 @@ export default function PrivacyPolicy() {
         <h2>5. Com quem os dados podem ser compartilhados</h2>
         <p>Os dados podem ser acessados, dentro do necessário, por fornecedores que apoiam a operação, tais como:</p>
         <ul>
-          <li>provedores de hospedagem, segurança, armazenamento, e-mail e formulários;</li>
+          <li>Cloudflare, para hospedagem, segurança e processamento do envio do formulário;</li>
+          <li>Resend, para o envio transacional das candidaturas por e-mail;</li>
+          <li>Google Gmail, para recebimento e armazenamento das mensagens encaminhadas;</li>
           <li>Google Meet, para realização dos encontros;</li>
           <li>WhatsApp, para comunicação e suporte assíncrono;</li>
           <li>prestadores de pagamento, contabilidade, assessoria jurídica e suporte tecnológico, quando aplicável;</li>

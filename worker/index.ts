@@ -5,6 +5,8 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  RESEND_API_KEY?: string;
+  RESEND_FROM_EMAIL?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -19,6 +21,160 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+type ApplicationPayload = {
+  name: string;
+  email: string;
+  whatsapp: string;
+  linkedin: string;
+  role: string;
+  company: string;
+  stage: string;
+  challenge: string;
+  goal90Days: string;
+  investmentReadiness: string;
+  source: string;
+  consent: boolean;
+  website?: string;
+  startedAt?: number;
+};
+
+const APPLICATION_RECIPIENT = "breno26@gmail.com";
+const DEFAULT_RESEND_SENDER = "Candidaturas Coders Zoom <onboarding@resend.dev>";
+const MAX_APPLICATION_BYTES = 24_000;
+
+const fieldLabels: Array<[keyof ApplicationPayload, string]> = [
+  ["name", "Nome"],
+  ["email", "E-mail"],
+  ["whatsapp", "WhatsApp"],
+  ["linkedin", "LinkedIn"],
+  ["role", "Cargo ou ocupação"],
+  ["company", "Empresa ou projeto"],
+  ["stage", "Estágio do negócio"],
+  ["challenge", "Principal desafio atual"],
+  ["goal90Days", "Objetivo para os próximos 90 dias"],
+  ["investmentReadiness", "Disponibilidade para investir"],
+  ["source", "Como conheceu a Coders Zoom"],
+];
+
+function jsonResponse(body: object, status = 200) {
+  return Response.json(body, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isValidApplication(value: unknown): value is ApplicationPayload {
+  if (!isRecord(value) || value.consent !== true || value.website) return false;
+
+  for (const [field] of fieldLabels) {
+    const content = value[field];
+    if (typeof content !== "string" || content.trim().length === 0 || content.length > 4_000) {
+      return false;
+    }
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email as string)) return false;
+
+  try {
+    const linkedIn = new URL(value.linkedin as string);
+    if (!/^https?:$/.test(linkedIn.protocol)) return false;
+  } catch {
+    return false;
+  }
+
+  return typeof value.startedAt === "number" && Date.now() - value.startedAt >= 1_500;
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  })[character] ?? character);
+}
+
+async function handleApplication(request: Request, env: Env): Promise<Response> {
+  if (request.method !== "POST") {
+    return jsonResponse({ error: "Método não permitido." }, 405);
+  }
+
+  const requestUrl = new URL(request.url);
+  const origin = request.headers.get("Origin");
+  if (origin && origin !== requestUrl.origin) {
+    return jsonResponse({ error: "Origem não autorizada." }, 403);
+  }
+
+  if (!request.headers.get("Content-Type")?.toLowerCase().startsWith("application/json")) {
+    return jsonResponse({ error: "Formato de envio inválido." }, 415);
+  }
+
+  const declaredSize = Number(request.headers.get("Content-Length") || 0);
+  if (declaredSize > MAX_APPLICATION_BYTES) {
+    return jsonResponse({ error: "O formulário excede o tamanho permitido." }, 413);
+  }
+
+  const rawBody = await request.text();
+  if (rawBody.length > MAX_APPLICATION_BYTES) {
+    return jsonResponse({ error: "O formulário excede o tamanho permitido." }, 413);
+  }
+
+  let application: unknown;
+  try {
+    application = JSON.parse(rawBody);
+  } catch {
+    return jsonResponse({ error: "Não foi possível interpretar o formulário." }, 400);
+  }
+
+  if (!isValidApplication(application)) {
+    return jsonResponse({ error: "Revise os campos e tente novamente." }, 400);
+  }
+
+  if (!env.RESEND_API_KEY) {
+    return jsonResponse({ error: "O envio de candidaturas ainda não está configurado." }, 503);
+  }
+
+  const rows = fieldLabels.map(([field, label]) => {
+    const value = String(application[field]);
+    return `<tr><th align="left" style="padding:8px 12px;border-bottom:1px solid #e7e7e7;vertical-align:top">${escapeHtml(label)}</th><td style="padding:8px 12px;border-bottom:1px solid #e7e7e7;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`;
+  }).join("");
+  const text = fieldLabels
+    .map(([field, label]) => `${label}: ${String(application[field])}`)
+    .join("\n\n");
+
+  const resendResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+      "User-Agent": "coderszoom-mentoria/1.0",
+    },
+    body: JSON.stringify({
+      from: env.RESEND_FROM_EMAIL || DEFAULT_RESEND_SENDER,
+      to: [APPLICATION_RECIPIENT],
+      reply_to: application.email,
+      subject: `Nova candidatura — ${application.name.replace(/[\r\n]/g, " ").slice(0, 120)}`,
+      html: `<h1>Nova candidatura para a mentoria</h1><table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:14px">${rows}</table>`,
+      text: `Nova candidatura para a mentoria\n\n${text}`,
+    }),
+  });
+
+  if (!resendResponse.ok) {
+    console.error("Resend recusou o envio da candidatura.", resendResponse.status);
+    return jsonResponse({ error: "Não foi possível enviar sua candidatura agora." }, 502);
+  }
+
+  return jsonResponse({ ok: true }, 201);
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -28,6 +184,10 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/candidatura") {
+      return handleApplication(request, env);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

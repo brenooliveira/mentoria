@@ -56,6 +56,8 @@ export function ApplicationForm() {
       investmentReadiness: application.investmentReadiness,
       source: application.source,
       consent: application.consent === "on",
+      website: application.website,
+      startedAt: startedAt.current,
     };
 
     setStatus("submitting");

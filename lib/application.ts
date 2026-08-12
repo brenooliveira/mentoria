@@ -11,6 +11,8 @@ export type ApplicationSubmission = {
   investmentReadiness: string;
   source: string;
   consent: boolean;
+  website: string;
+  startedAt: number;
 };
 
 export interface ApplicationGateway {

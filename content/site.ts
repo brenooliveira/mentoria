@@ -41,8 +41,8 @@ export const siteConfig = {
     terms: "/termos-de-uso",
   },
   form: {
-    mode: "preview" as "preview" | "endpoint",
-    destination: "[DESTINO DO FORMULÁRIO]",
+    mode: "endpoint" as "preview" | "endpoint",
+    destination: "/api/candidatura",
   },
   socialImage: "/og.png",
 } as const;
