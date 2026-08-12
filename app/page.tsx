@@ -18,37 +18,21 @@ export const metadata: Metadata = {
 
 const problems = [
   "Construir antes de validar",
-  "Ter dificuldade para escolher um público",
-  "Não conseguir explicar o valor do produto",
-  "Cobrar com base em horas ou esforço técnico",
-  "Depender de indicações",
+  "Não conseguir escolher um público",
+  "Ter dificuldade para explicar o valor do produto",
+  "Depender de indicações para vender",
   "Ter muitas ideias e pouca prioridade",
-  "Não saber como conquistar os primeiros clientes",
 ];
 
 const beforeAfter = {
-  before: ["Muitas ideias", "Posicionamento confuso", "Produto sem validação", "Dificuldade para vender", "Decisões baseadas só em intuição"],
-  after: ["Público e problema definidos", "Oferta compreensível", "Plano de validação", "Processo comercial inicial", "Prioridades para os próximos 90 dias"],
+  before: ["Público indefinido", "Produto sem validação", "Oferta difícil de explicar", "Aquisição baseada apenas em indicações", "Prioridades confusas"],
+  after: ["Público e problema definidos", "Oferta e preço documentados", "Plano de validação", "Processo comercial inicial", "Indicadores essenciais", "Plano de execução para 90 dias"],
 };
-
-const deliverables = [
-  "Posicionamento",
-  "Cliente ideal",
-  "Oferta e preço",
-  "Plano de validação",
-  "Aquisição de clientes",
-  "Priorização de produto",
-  "Indicadores essenciais",
-  "Plano de 90 dias",
-];
 
 export default function Home() {
   const mentorHasPhoto = !siteConfig.mentor.photo.startsWith("[");
   const mentorHasLinkedIn = !siteConfig.mentor.linkedIn.startsWith("[");
-  const investmentCopy =
-    siteConfig.investment.mode === "initial-price"
-      ? `Investimento do ciclo inicial: ${siteConfig.investment.initialPrice}`
-      : "Valores e condições são apresentados após a análise da candidatura.";
+  const hasAvailableSpots = !siteConfig.investment.availableSpots.startsWith("[");
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -119,7 +103,10 @@ export default function Home() {
               </div>
               <div className="credibility-card">
                 <span className="signal-dot" aria-hidden="true"></span>
-                <p>{siteConfig.mentor.legalTrajectory}</p>
+                <div>
+                  <strong>{siteConfig.mentor.heroCredential}</strong>
+                  <p>{siteConfig.mentor.heroCredentialDetail}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -180,8 +167,8 @@ export default function Home() {
           <div className="container transformation-grid">
             <div className="section-heading sticky-heading">
               <p className="eyebrow">Da complexidade à clareza</p>
-              <h2>Decisões melhores mudam a qualidade do negócio.</h2>
-              <p>O objetivo não é prometer um atalho. É criar critérios, testar hipóteses e sair do ciclo de improviso.</p>
+              <h2>Decisões melhores para aplicar no negócio real.</h2>
+              <p>Durante o ciclo, você organiza critérios, testa hipóteses e transforma prioridades em um caminho de execução.</p>
             </div>
             <div className="comparison" aria-label="Comparação de antes e depois da mentoria">
               <article className="comparison-card before-card">
@@ -189,7 +176,7 @@ export default function Home() {
                 <ul>{beforeAfter.before.map((item) => <li key={item}><span>×</span>{item}</li>)}</ul>
               </article>
               <article className="comparison-card after-card">
-                <p className="comparison-label">Depois</p>
+                <p className="comparison-label">Ao final do ciclo</p>
                 <ul>{beforeAfter.after.map((item) => <li key={item}><span>✓</span>{item}</li>)}</ul>
               </article>
             </div>
@@ -239,9 +226,10 @@ export default function Home() {
             <div className="mentor-copy">
               <p className="eyebrow">Sobre o mentor</p>
               <h2>Experiência prática, compartilhada sem fórmulas prontas.</h2>
-              <p>Sou líder de tecnologia e empreendedor com mais de 20 anos de experiência em engenharia de software, arquitetura e construção de produtos digitais. Minha trajetória combina liderança de pessoas, visão de negócio e proximidade técnica para transformar problemas complexos em soluções escaláveis.</p>
-              <p>Como cofundador e CTO da Ductor e da Grão, ex-Head de Tecnologia do Grupo Primo e ex-Head of Engineering no Moip, estruturei times, desenvolvi lideranças e participei da evolução de produtos nos mercados de pagamentos, investimentos e serviços financeiros.</p>
-              <p>Nesta mentoria, compartilho os aprendizados práticos dessa jornada para ajudar outros profissionais técnicos a tomar decisões melhores, evitar erros comuns e construir negócios mais consistentes.</p>
+              <p>Sou Breno Oliveira, profissional de tecnologia e empreendedor com mais de 20 anos de experiência construindo produtos digitais, empresas e times de engenharia.</p>
+              <p>Como cofundador e CTO da Grão, vivi o processo de transformar uma ideia em produto, operação e negócio. Posteriormente, participei da integração da empresa ao Grupo Primo, onde também atuei como Head de Tecnologia.</p>
+              <p>Também fui cofundador e CTO da Ductor e Head of Engineering no Moip, acumulando experiência nos mercados de pagamentos, investimentos e serviços financeiros.</p>
+              <p>Nesta mentoria, uso os aprendizados dessa trajetória para ajudar profissionais e fundadores técnicos a transformar conhecimento e produto em uma oferta mais clara, validada e comercialmente viável.</p>
               <blockquote>“{siteConfig.mentor.legalTrajectory}”</blockquote>
               <div className="mentor-placeholders" aria-label="Experiência do mentor">
                 <span>{siteConfig.mentor.relevantExperience}</span>
@@ -249,22 +237,10 @@ export default function Home() {
                 <span>{siteConfig.mentor.mediaAppearances}</span>
               </div>
               {mentorHasLinkedIn ? (
-                <a className="mentor-link" href={siteConfig.mentor.linkedIn} target="_blank" rel="noreferrer">Conectar com Breno no LinkedIn ↗</a>
+                <a className="mentor-link" href={siteConfig.mentor.linkedIn} target="_blank" rel="noopener noreferrer">Conectar com Breno no LinkedIn ↗</a>
               ) : (
                 <span className="disabled-link" aria-disabled="true">LinkedIn será adicionado após confirmação ↗</span>
               )}
-            </div>
-          </div>
-        </section>
-
-        <section className="deliverables section" id="aplicacao-pratica">
-          <div className="container">
-            <div className="section-heading split-heading">
-              <div><p className="eyebrow">Aplicação prática</p><h2>Você termina o ciclo com decisões documentadas — não com mais conteúdo acumulado.</h2></div>
-              <p>Cada frente é trabalhada no contexto real do seu negócio, respeitando estágio, recursos e restrições.</p>
-            </div>
-            <div className="deliverable-grid">
-              {deliverables.map((item, index) => <div key={item}><span>0{index + 1}</span><strong>{item}</strong></div>)}
             </div>
           </div>
         </section>
@@ -280,9 +256,14 @@ export default function Home() {
             ) : (
               <>
                 <p className="eyebrow">Turma fundadora</p>
-                <h2>Primeiro ciclo da mentoria.</h2>
-                <p>As primeiras vagas terão acompanhamento especialmente próximo do mentor e participação na evolução do método — sempre com decisões aplicadas a negócios reais.</p>
-                <div className="cycle-note"><span aria-hidden="true">◎</span><p>Sem depoimentos inventados. Resultados e relatos só serão publicados com autorização expressa.</p></div>
+                <h2>Uma turma fundadora com acompanhamento ainda mais próximo.</h2>
+                <p>Este será o primeiro ciclo oficial da mentoria. Por isso, as vagas serão limitadas e todos os participantes terão acompanhamento direto de Breno, aplicação do método em seus desafios reais e participação na evolução do programa.</p>
+                <ul className="cycle-benefits">
+                  <li>Todos os encontros conduzidos diretamente pelo mentor.</li>
+                  <li>Poucas vagas para garantir profundidade.</li>
+                  <li>Aplicação do método no contexto real de cada negócio.</li>
+                </ul>
+                {hasAvailableSpots && <p className="cycle-capacity">Até {siteConfig.investment.availableSpots} participantes neste ciclo.</p>}
               </>
             )}
           </div>
@@ -295,9 +276,18 @@ export default function Home() {
               <h2>Vamos entender se este é o momento certo para o seu negócio.</h2>
               <p>Conte onde você está e o que precisa destravar. A candidatura é analisada antes de qualquer conversa sobre pagamento.</p>
               <div className="investment-card">
-                <small>Investimento</small>
-                <strong>{investmentCopy}</strong>
-                {siteConfig.investment.mode === "initial-price" && <span>{siteConfig.investment.installmentDetails}</span>}
+                <small>{siteConfig.investment.mode === "initial-price" ? "Investimento do ciclo fundador" : "Investimento"}</small>
+                {siteConfig.investment.mode === "initial-price" ? (
+                  <>
+                    <strong>{siteConfig.investment.initialPrice}</strong>
+                    <span>{siteConfig.investment.installmentDetails}</span>
+                  </>
+                ) : (
+                  <>
+                    <strong>Os valores e as condições são apresentados após a análise da candidatura.</strong>
+                    <span>A candidatura não gera cobrança nem compromisso de contratação.</span>
+                  </>
+                )}
               </div>
               <p className="limited-note"><span aria-hidden="true">◆</span> As vagas são limitadas porque todos os encontros são conduzidos individualmente.</p>
             </div>

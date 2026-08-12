@@ -73,11 +73,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function isValidApplication(value: unknown): value is ApplicationPayload {
   if (!isRecord(value) || value.consent !== true || value.website) return false;
 
-  for (const [field] of fieldLabels) {
+  const requiredFields: Array<keyof ApplicationPayload> = [
+    "name",
+    "email",
+    "whatsapp",
+    "role",
+    "stage",
+    "challenge",
+    "goal90Days",
+    "investmentReadiness",
+  ];
+
+  for (const field of requiredFields) {
     const content = value[field];
     if (typeof content !== "string" || content.trim().length === 0 || content.length > 4_000) {
       return false;
     }
+  }
+
+  for (const field of ["linkedin", "company", "source"] as const) {
+    const content = value[field];
+    if (typeof content !== "string" || content.length > 4_000) return false;
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email as string)) return false;
@@ -85,11 +101,13 @@ function isValidApplication(value: unknown): value is ApplicationPayload {
   const phoneDigits = (value.whatsapp as string).replace(/\D/g, "");
   if (phoneDigits.length !== 10 && phoneDigits.length !== 11) return false;
 
-  try {
-    const linkedIn = new URL(value.linkedin as string);
-    if (!/^https?:$/.test(linkedIn.protocol)) return false;
-  } catch {
-    return false;
+  if (value.linkedin) {
+    try {
+      const linkedIn = new URL(value.linkedin as string);
+      if (!/^https?:$/.test(linkedIn.protocol)) return false;
+    } catch {
+      return false;
+    }
   }
 
   return typeof value.startedAt === "number" && Date.now() - value.startedAt >= 1_500;
@@ -146,11 +164,11 @@ async function handleApplication(request: Request, env: Env): Promise<Response> 
   }
 
   const rows = fieldLabels.map(([field, label]) => {
-    const value = String(application[field]);
+    const value = String(application[field] || "Não informado");
     return `<tr><th align="left" style="padding:8px 12px;border-bottom:1px solid #e7e7e7;vertical-align:top">${escapeHtml(label)}</th><td style="padding:8px 12px;border-bottom:1px solid #e7e7e7;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`;
   }).join("");
   const text = fieldLabels
-    .map(([field, label]) => `${label}: ${String(application[field])}`)
+    .map(([field, label]) => `${label}: ${String(application[field] || "Não informado")}`)
     .join("\n\n");
 
   const resendResponse = await fetch("https://api.resend.com/emails", {

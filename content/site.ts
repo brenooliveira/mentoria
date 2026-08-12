@@ -19,8 +19,11 @@ export const siteConfig = {
     name: "Breno Oliveira",
     photo: "/breno-oliveira.jpeg",
     linkedIn: "https://www.linkedin.com/in/brenooliveira/",
+    acquisitionConfirmed: false,
     legalTrajectory:
-      "Experiência de quem liderou tecnologia, construiu produtos digitais e transformou desafios técnicos em negócios escaláveis.",
+      "Cofundador da Grão e ex-Head de Tecnologia do Grupo Primo.",
+    heroCredential: "Cofundador da Grão",
+    heroCredentialDetail: "Ex-Head de Tecnologia do Grupo Primo.",
     relevantExperience: "+20 anos em engenharia de software e produtos digitais",
     authorizedProjects: "Cofundador e CTO da Ductor e da Grão",
     mediaAppearances: "Ex-Head de Tecnologia do Grupo Primo e Ex-Head of Engineering no Moip",
@@ -30,6 +33,11 @@ export const siteConfig = {
     initialPrice: "[PREÇO]",
     installmentDetails: "[CONDIÇÕES DE PARCELAMENTO]",
     availableSpots: "[NÚMERO DE VAGAS]",
+    readinessOptions: [
+      "Posso investir agora, se houver alinhamento",
+      "Preciso entender valores e condições",
+      "Estou me planejando para investir",
+    ],
   },
   contact: {
     whatsapp: "[WHATSAPP]",
@@ -126,6 +134,8 @@ export const faq = [
   },
   {
     question: "Quantas vagas estão disponíveis?",
-    answer: `O número final ainda será confirmado (${siteConfig.investment.availableSpots}). As vagas são limitadas porque todos os encontros são individuais.`,
+    answer: siteConfig.investment.availableSpots.startsWith("[")
+      ? "O número final de vagas será informado na abertura do ciclo. As vagas serão limitadas porque todos os encontros são individuais."
+      : `Serão até ${siteConfig.investment.availableSpots} participantes neste ciclo, garantindo acompanhamento individual em todos os encontros.`,
   },
 ];

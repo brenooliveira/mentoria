@@ -34,6 +34,9 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.doesNotMatch(html, /\[EXPERIÊNCIAS RELEVANTES\]|\[EMPRESAS OU PROJETOS AUTORIZADOS\]|\[EVENTOS, ENTREVISTAS OU PODCASTS\]/);
   assert.match(html, /id="candidatura"/);
   assert.match(html, /name="consent"/);
+  assert.match(html, /Etapa 1 de 2/);
+  assert.match(html, /Sobre o momento atual/);
+  assert.match(html, /LinkedIn<small>Opcional<\/small>/);
   assert.match(html, /id="whatsapp"[^>]*inputMode="numeric"/i);
   assert.match(html, /id="whatsapp"[^>]*maxLength="15"/i);
   assert.match(html, /application\/ld\+json/);
@@ -112,6 +115,53 @@ test("encaminha uma candidatura válida ao provedor de e-mail", async () => {
     assert.deepEqual(emailPayload.to, ["breno26@gmail.com"]);
     assert.equal(emailPayload.reply_to, "pessoa@example.com");
     assert.match(emailPayload.subject, /Pessoa Candidata/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("aceita os campos opcionais vazios no endpoint", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("optional-fields-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const originalFetch = globalThis.fetch;
+  let emailRequest;
+
+  globalThis.fetch = async (url, init) => {
+    emailRequest = { url: String(url), init };
+    return Response.json({ id: "email_teste" }, { status: 200 });
+  };
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://mentoria.example/api/candidatura", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: "https://mentoria.example" },
+        body: JSON.stringify({
+          name: "Pessoa Candidata",
+          email: "pessoa@example.com",
+          whatsapp: "(11) 99999-9999",
+          linkedin: "",
+          role: "Fundadora",
+          company: "",
+          stage: "Ainda é uma ideia",
+          challenge: "Preciso validar uma proposta com clientes reais.",
+          goal90Days: "Quero definir um processo comercial inicial viável.",
+          investmentReadiness: "Preciso entender valores e condições",
+          source: "",
+          consent: true,
+          website: "",
+          startedAt: Date.now() - 2_000,
+        }),
+      }),
+      { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) }, RESEND_API_KEY: "re_teste" },
+      { waitUntil() {}, passThroughOnException() {} },
+    );
+
+    assert.equal(response.status, 201);
+    const emailPayload = JSON.parse(emailRequest.init.body);
+    assert.match(emailPayload.text, /LinkedIn: Não informado/);
+    assert.match(emailPayload.text, /Empresa ou projeto: Não informado/);
   } finally {
     globalThis.fetch = originalFetch;
   }
