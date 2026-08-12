@@ -39,3 +39,27 @@ test("mantém uma única heading principal", async () => {
   const h1Matches = html.match(/<h1\b/gi) ?? [];
   assert.equal(h1Matches.length, 1);
 });
+
+test("publica a política de privacidade com identificação e direitos LGPD", async () => {
+  const response = await render("/politica-de-privacidade");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Política de Privacidade/);
+  assert.match(html, /30\.980\.097\/0001-07/);
+  assert.match(html, /contato@coderszoom\.com\.br/);
+  assert.match(html, /até 6 meses/);
+  assert.match(html, /Seus direitos/);
+});
+
+test("publica os termos com as condições informadas da mentoria", async () => {
+  const response = await render("/termos-de-uso");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Termos de Uso e da Mentoria/);
+  assert.match(html, /Google Meet/);
+  assert.match(html, /1h15 a 1h30/);
+  assert.match(html, /24 horas/);
+  assert.match(html, /prazo legal de 7 dias/);
+  assert.match(html, /pessoal e intransferível/);
+  assert.match(html, /não serão gravados/);
+});

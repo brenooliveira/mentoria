@@ -333,8 +333,8 @@ export default function Home() {
 
         <section className="legal-notes" aria-label="Informações legais">
           <div className="container legal-grid">
-            <article id="privacidade"><h2>Política de Privacidade</h2><p>Texto completo pendente de publicação em {siteConfig.links.privacyPolicy}. Até a configuração do destino do formulário, nenhum dado enviado nesta prévia é armazenado.</p></article>
-            <article id="termos"><h2>Termos</h2><p>Texto completo pendente de publicação em {siteConfig.links.terms}. A mentoria oferece orientação e método; não há garantia de resultados financeiros.</p></article>
+            <a className="legal-note-link" href={siteConfig.links.privacyPolicy}><span>Privacidade</span><h2>Política de Privacidade</h2><p>Como coletamos, utilizamos, protegemos e eliminamos dados pessoais.</p><i aria-hidden="true">↗</i></a>
+            <a className="legal-note-link" href={siteConfig.links.terms}><span>Condições</span><h2>Termos de Uso e da Mentoria</h2><p>Regras do site, da candidatura e da prestação da mentoria individual.</p><i aria-hidden="true">↗</i></a>
           </div>
         </section>
       </main>
@@ -343,7 +343,7 @@ export default function Home() {
         <div className="container footer-top">
           <img src={siteConfig.brand.logo} width="181" height="36" alt="Coders Zoom" loading="lazy" decoding="async" />
           <p>Tecnologia é só o começo.</p>
-          <nav aria-label="Links legais"><a href="#privacidade">Política de Privacidade</a><a href="#termos">Termos</a></nav>
+          <nav aria-label="Links legais"><a href={siteConfig.links.privacyPolicy}>Política de Privacidade</a><a href={siteConfig.links.terms}>Termos de Uso</a></nav>
         </div>
         <div className="container footer-bottom"><span>© {new Date().getFullYear()} Coders Zoom.</span><span>Mentoria de tecnologia e negócios.</span></div>
       </footer>

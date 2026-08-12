@@ -33,17 +33,25 @@ export const siteConfig = {
   },
   contact: {
     whatsapp: "[WHATSAPP]",
-    email: "[E-MAIL]",
+    email: "contato@coderszoom.com.br",
+    privacyEmail: "contato@coderszoom.com.br",
   },
   links: {
-    privacyPolicy: "[LINK DA POLÍTICA DE PRIVACIDADE]",
-    terms: "[LINK DOS TERMOS]",
+    privacyPolicy: "/politica-de-privacidade",
+    terms: "/termos-de-uso",
   },
   form: {
     mode: "preview" as "preview" | "endpoint",
     destination: "[DESTINO DO FORMULÁRIO]",
   },
   socialImage: "/og.png",
+} as const;
+
+export const companyConfig = {
+  legalName: "Breno Henrique Duarte de Oliveira Consultoria em TI",
+  cnpj: "30.980.097/0001-07",
+  address: "Rua Derval, 226, São Paulo/SP",
+  jurisdiction: "São Paulo/SP",
 } as const;
 
 export const testimonials: Testimonial[] = [];

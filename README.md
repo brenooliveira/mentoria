@@ -14,6 +14,8 @@ Todo conteúdo substituível está centralizado em `content/site.ts`:
 - URLs definitivas da Política de Privacidade e dos Termos;
 - destino do formulário.
 
+As páginas `/politica-de-privacidade` e `/termos-de-uso` já contêm os dados empresariais e as regras informadas. Ainda podem ser acrescentados CEP/complemento do endereço e o número público de WhatsApp.
+
 ## Envio do formulário
 
 O formulário está em `preview`: valida os campos, protege com honeypot e tempo mínimo, e simula o estado de carregamento/sucesso sem transmitir dados.

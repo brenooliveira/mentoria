@@ -165,7 +165,7 @@ export function ApplicationForm() {
       <label className="consent-field" htmlFor="consent">
         <input id="consent" name="consent" type="checkbox" required />
         <span>
-          Autorizo o contato e o tratamento dos dados enviados para análise da candidatura, de acordo com a Política de Privacidade.
+          Autorizo o contato e o tratamento dos dados enviados para análise da candidatura, de acordo com a <a href={siteConfig.links.privacyPolicy} target="_blank" rel="noreferrer">Política de Privacidade</a>.
         </span>
       </label>
 
