@@ -30,6 +30,8 @@ test("renderiza a landing page da mentoria com conteúdo essencial", async () =>
   assert.match(html, /https:\/\/www\.linkedin\.com\/in\/brenooliveira\//);
   assert.match(html, /id="candidatura"/);
   assert.match(html, /name="consent"/);
+  assert.match(html, /id="whatsapp"[^>]*inputMode="numeric"/i);
+  assert.match(html, /id="whatsapp"[^>]*maxLength="15"/i);
   assert.match(html, /application\/ld\+json/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

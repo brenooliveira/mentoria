@@ -121,7 +121,18 @@ export function ApplicationForm() {
       <div className="form-grid">
         <Field label="Nome" name="name" autoComplete="name" />
         <Field label="E-mail" name="email" type="email" autoComplete="email" />
-        <Field label="WhatsApp" name="whatsapp" type="tel" autoComplete="tel" placeholder="(00) 00000-0000" />
+        <Field
+          label="WhatsApp"
+          name="whatsapp"
+          type="tel"
+          autoComplete="tel"
+          inputMode="numeric"
+          maxLength={15}
+          pattern={"\\(\\d{2}\\) \\d{4,5}-\\d{4}"}
+          placeholder="(00) 00000-0000"
+          title="Informe o telefone com DDD"
+          transformValue={formatBrazilianPhone}
+        />
         <Field label="LinkedIn" name="linkedin" type="url" placeholder="https://linkedin.com/in/seu-perfil" />
         <Field label="Cargo ou ocupação" name="role" autoComplete="organization-title" />
         <Field label="Empresa ou projeto" name="company" autoComplete="organization" />
@@ -187,20 +198,64 @@ function Field({
   name,
   type = "text",
   autoComplete,
+  inputMode,
+  maxLength,
+  pattern,
   placeholder,
+  title,
+  transformValue,
 }: {
   label: string;
   name: string;
   type?: string;
   autoComplete?: string;
+  inputMode?: "numeric";
+  maxLength?: number;
+  pattern?: string;
   placeholder?: string;
+  title?: string;
+  transformValue?: (value: string) => string;
 }) {
   return (
     <label className="field" htmlFor={name}>
       <span>{label}</span>
-      <input className={fieldClass} id={name} name={name} type={type} autoComplete={autoComplete} placeholder={placeholder} required />
+      <input
+        className={fieldClass}
+        id={name}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        pattern={pattern}
+        placeholder={placeholder}
+        title={title}
+        required
+        onInput={transformValue ? (event) => {
+          event.currentTarget.value = transformValue(event.currentTarget.value);
+        } : undefined}
+      />
     </label>
   );
+}
+
+function formatBrazilianPhone(value: string) {
+  let digits = value.replace(/\D/g, "");
+
+  if (digits.length > 11 && digits.startsWith("55")) {
+    digits = digits.slice(2);
+  }
+
+  digits = digits.slice(0, 11);
+  if (!digits) return "";
+  if (digits.length < 3) return `(${digits}`;
+
+  const areaCode = digits.slice(0, 2);
+  const subscriber = digits.slice(2);
+  if (subscriber.length <= 4) return `(${areaCode}) ${subscriber}`;
+
+  const prefixLength = subscriber.length > 8 ? 5 : 4;
+  return `(${areaCode}) ${subscriber.slice(0, prefixLength)}-${subscriber.slice(prefixLength)}`;
 }
 
 function TextArea({ label, name }: { label: string; name: string }) {

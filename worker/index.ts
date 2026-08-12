@@ -82,6 +82,9 @@ function isValidApplication(value: unknown): value is ApplicationPayload {
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email as string)) return false;
 
+  const phoneDigits = (value.whatsapp as string).replace(/\D/g, "");
+  if (phoneDigits.length !== 10 && phoneDigits.length !== 11) return false;
+
   try {
     const linkedIn = new URL(value.linkedin as string);
     if (!/^https?:$/.test(linkedIn.protocol)) return false;
